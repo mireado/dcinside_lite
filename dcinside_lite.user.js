@@ -2400,9 +2400,9 @@
 			buttons[i].href = buttons[i].href.replace(/([?&]id=)[^&]+/,'$1'+_ID);
 		}
 
-		cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
+		cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... (" + (p + PAGE) + " 페이지)</span>";
 
-		if(MODE.api) {
+		if(!(Object.keys(MODE.api).length == 0)) {
 			console.log('API load!');
 			if(!MODE.api.count) {
 				try {
@@ -3578,9 +3578,14 @@
 							else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
 								console.log('삭제 버튼 없음');
 							}
-							delbox.addEventListener("click",function(e){ layer.delComment(e);});
-							delbox.setAttribute("DCL_del_no",delExec[1]);
-							delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
+							delbox.addEventListener("click", function (e) { layer.delComment(e); });
+						    /* 서버 오류로 인해 로그인이 해제된 사용자에 대한 예외처리
+						       해당 유저는 댓글 삭제가 불가하여 delExec가 null임
+                               그러므로 delExec가 null이면 해당 유저 댓글은 삭제코드 속성 등록 x. */
+							if (delExec != null) {
+							    delbox.setAttribute("DCL_del_no", delExec[1]);
+							    delbox.setAttribute("DCL_del_orgin", delExec[2] ? delExec[2] : null);
+							}
 						}
 						else { delbox=null; }
 
@@ -3667,7 +3672,10 @@
 			memo.focus();
 			return;
 		}
-		var data = "id="+_ID+"&no="+this.no+"&memo="+encodeURIComponent(memo.value)+'&ci_t='+csrf_token();
+
+		var data = '&ci_t='+csrf_token()+"&memo="+encodeURIComponent(memo.value)+"&id="+_ID+"&no="+this.no;
+            data += "&ehqo_C=spam_key&spam_key=rhkdrhgkwlak!!"
+
 		if(!_GID) {
 			var rName = memo.previousSibling;
 			var rPassword = memo.nextSibling;
@@ -3682,8 +3690,8 @@
 				return;
 			}
 			data += "&name="+encodeURIComponent(rName.value)+"&password="+encodeURIComponent(rPassword.value);
-			if (!MODE.minor) {
-				data += "&spam_key=rhkdrhgkwlak!"
+			 if (!MODE.minor) {
+				data += "&ehqo_C=spam_key&spam_key=rhkdrhgkwlak!!"
 			}
 		}
 
